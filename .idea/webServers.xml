@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="a3cb75bb-a353-402c-9e4d-f9a166e4b45e" name="天启">
+        <fileTransfer rootFolder="/root/PythonProjects" accessType="SFTP" host="1.116.96.117" port="22" sshConfigId="3e4f6e55-7eb2-4cb2-9b09-ef8356827f37" sshConfig="root@1.116.96.117:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
