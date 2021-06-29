@@ -32,8 +32,8 @@ def get_response(account):
 
 # 发送邮件
 def send_email(date, file):
-    yagmail_server = yagmail.SMTP(user="541946578@qq.com", password="lnmpqeqlpivibeci", host="smtp.qq.com")
-    email_to = ["541946578@qq.com"]
+    yagmail_server = yagmail.SMTP(user="邮箱号：需要设置", password="SMTP码", host="smtp.qq.com")
+    email_to = ["邮箱号：需要设置"]
     title = date + '离线情况报告'
     email_title = [title]
     email_content = [title]
