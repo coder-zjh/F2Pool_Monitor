@@ -84,7 +84,7 @@ def hourly_offline_report(df):
 # pickle做备份
 def day_offline_record(df):
     with open('customers.yml', 'r') as f:
-        yaml_cont = yaml.load(f, Loader=yaml.FullLoader)['account-amount']
+        yaml_cont = yaml.load(f, Loader=yaml.FullLoader)['account-record']
 
     hour = datetime.now().hour
     df = df[(df['过去1h平均算力'] == 0) & (~df['机器编号'].str.contains('eth'))][['账号', '机器编号']]
