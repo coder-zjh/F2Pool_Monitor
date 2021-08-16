@@ -5,39 +5,8 @@
 # amount[int]: 所含数量
 
 account-record:
-  sherry88888:
-    customer: '公司自有'
-    area: [ 'M' ]
-    amount: 37
-  eth88eth:
-    customer: '严总公司'
-    area: [ 'M','D' ]
-    amount: 267
-  zhoufang:
-    customer: '南京周方总'
-    area: [ 'D' ]
-    amount: 10
-  ethwu99:
-    customer: '南京武总'
-    area: [ 'M' ]
-    amount: 30
-  yanjiazhong2:
-    customer: '南京严总'
-    area: [ 'D' ]
-    amount: 30
-  sikaiyong1:
-    customer: '南京司总'
-    area: [ 'D' ]
-    amount: 30
-  zhouqifang:
-    customer: '南京周总'
-    area: [ 'M' ]
-    amount: 30
-  eth30hx30:
-    customer: '严总公司'
-    area: [ 'M' ]
-    amount: 33
-  ethvbtc:
-    customer: '临时部署'
-    area: [ 'D' ]
-    amount: 443
+  xxx:
+    customer: aaa
+    area: [ 'a','b' ]
+    amount: 999
+

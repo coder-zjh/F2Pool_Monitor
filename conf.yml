@@ -1,28 +1,27 @@
 # 发件邮箱设置
 # 邮箱名: SMTP码
 emails_send:
-  user: 541946578@qq.com
-  password: lnmpqeqlpivibeci
-  host: smtp.qq.com
+  user:
+  password:
+  host:
 
 # MySQL连接
 mysql_conn:
-  host: 1.116.96.117
-  port: 3306
-  user: root
-  password: zjh_123
+  host:
+  port:
+  user:
+  password:
 
 
 # 程序停止执行的起止时间(24小时制)
 stop_running_period:
-  # begin:1 end:8 ==》指1点到8点不执行
-  begin: 1
-  end: 8
+  begin:
+  end:
 
 # 收件邮箱设置
 emails_receive:
-  - 541946578@qq.com
-  - zjhfightforever@163.com
+  -
+  -
 
 # 钉钉机器人配置
 # hook地址
@@ -30,10 +29,10 @@ emails_receive:
 
 # 低算力提醒机器人配置
 low_hr_report:
-  hook: 'https://oapi.dingtalk.com/robot/send?access_token=cd7ad8453c6398ab3892cca6d80fe2268a627fea1b4dbcc1f4edf0981ed407a4'
-  sceret: 'SECa3242549289023e0ad9a7be9bcfcb2244af0876927f43e0890ba97d8944b9543'
+  hook:
+  sceret:
 
 # 离线提醒机器人配置
 hourly_offline_report:
-  hook: 'https://oapi.dingtalk.com/robot/send?access_token=5ae5268b0dc97a02360e46d90749146e0572c6eb91b5753af2aeb6279d85a73d'
-  secret: 'SECf52c0f985d3e36b060ef53a2924a5cbbf90f972366cddabbc68cbf4dd73b0a55'
+  hook:
+  secret:
