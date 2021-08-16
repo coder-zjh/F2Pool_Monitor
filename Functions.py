@@ -80,42 +80,24 @@ def hourly_offline_report(df):
     offline_dingding.send_text(msg=msg)
 
 
-# 24小时中每小时离线情况记录=>邮件发送
-# pickle做备份
+# 24小时每小时离线机器记录
 def day_offline_record(df):
-    with open('customers.yml', 'r') as f:
-        yaml_cont = yaml.load(f, Loader=yaml.FullLoader)['account-record']
+    # 获取记录日期
+    record_date = datetime.now().strftime('%Y%m%d')
+    # 获取记录时分秒
+    record_time = datetime.now().strftime('%H:%M:%S')
 
-    hour = datetime.now().hour
-    df = df[(df['过去1h平均算力'] == 0) & (~df['机器编号'].str.contains('eth'))][['账号', '机器编号']]
-    df_new = df.groupby('账号')['机器编号'].count()
-    dict_df_new = {'账号': df_new.index, hour: df_new.values}
-    df_new = pd.DataFrame(dict_df_new)
+    # df处理：获取实时算力为0的机器
+    df = df[(df['实时算力'] == 0) & (~df['机器编号'].str.contains('eth'))][['账号', '机器编号']]
+    df['record_date'] = record_date
+    df['record_time'] = record_time
 
-    # 如果pkl文件不存在,创建。
-    if not os.path.exists('daily_offline_record.pickle'):
-        # 最左边的信息dataframe，包含账号及对应台数
-        info_df = pd.DataFrame(columns=['账号', '台数'])
-        info_df['账号'] = yaml_cont.keys()
-        info_df['台数'] = yaml_cont.values()
-        info_df.to_pickle('daily_offline_record.pickle')
+    # 数据库连接配置
+    conn_dict = parse_yaml('conf.yml', 'mysql_conn')
+    user, password, host, port = conn_dict['user'], conn_dict['password'], conn_dict['host'], conn_dict['port']
+    db_name = 'F2Pool'
+    tb_name = 'hourly_offline_record'
+    engine = create_engine('mysql+pymysql://{}:{}@{}:{}/{}'.format(user, password, host, port, db_name))
 
-    # 如果存在,与进入函数的 df_new 进行 merge
-    df_old = pd.read_pickle('daily_offline_record.pickle')
-    offline_record = pd.merge(df_old, df_new, on='账号', how='left').fillna(0)
-
-    if len(offline_record.columns) == 26:
-        df['今日该账户离线总时长'] = df['台数'] * 24 - df.iloc[:, 2:].sum(axis=1)
-        yesterday = str(date.today() + timedelta(days=-1))
-        csv_name = yesterday + ' 离线报告.csv'
-        offline_record.to_csv(csv_name, index=False)
-        send_email(yesterday, csv_name)
-        os.remove(csv_name)
-        offline_record = pd.DataFrame(columns=['账号', '台数'])
-        offline_record['账号'] = yaml_cont.keys()
-        offline_record['台数'] = yaml_cont.values()
-        offline_record = pd.merge(df_old, df_new, on='账号', how='left').fillna(0)
-
-    offline_record.to_pickle('daily_offline_record.pickle')
-
-    return offline_record
+    # 发送数据到mysql
+    df.to_sql(tb_name, engine, index=False, if_exists='append')

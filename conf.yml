@@ -6,7 +6,11 @@ emails_send:
   host: smtp.qq.com
 
 # MySQL连接
-
+mysql_conn:
+  host: 1.116.96.117
+  port: 3306
+  user: root
+  password: zjh_123
 
 
 # 程序停止执行的起止时间(24小时制)
