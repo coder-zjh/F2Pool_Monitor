@@ -6,6 +6,7 @@ import pandas as pd
 from dingtalkchatbot.chatbot import DingtalkChatbot
 from Tools import *
 from datetime import datetime
+from sqlalchemy import create_engine
 
 
 # 函数集在某时间范围内豁免执行
@@ -88,7 +89,8 @@ def day_offline_record(df):
     record_time = datetime.now().strftime('%H:%M:%S')
 
     # df处理：获取实时算力为0的机器
-    df = df[(df['实时算力'] == 0) & (~df['机器编号'].str.contains('eth'))][['账号', '机器编号']]
+    df = df[(df['实时算力'] == 0) & (~df['机器编号'].str.contains('wc|eth'))][['账号', '机器编号']]
+    df.columns = ['account', 'serial']
     df['record_date'] = record_date
     df['record_time'] = record_time
 
