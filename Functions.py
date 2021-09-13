@@ -83,11 +83,11 @@ def hourly_offline_report(df):
         area_name = ''
         for group_name, group_df in groups:
             if area_name != group_name[0]:
-                msg += group_name[0] + '\n'
+                msg += group_name[0] + '场地离线，请及时处理：' + '\n'
                 area_name = group_name[0]
             serials = list(group_df['机器编号'])
-            if len(serials)>5:
-                serials = str(list(group_df['机器编号'])[:5])+'等大量离线'
+            if len(serials) > 5:
+                serials = str(list(group_df['机器编号'])[:5]) + '等大量离线'
             msg += str(group_df['账号'].values[0]) + '\t' + str(serials) + '\n'
 
     # 信息发送
