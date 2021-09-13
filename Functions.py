@@ -9,6 +9,16 @@ from datetime import datetime
 from sqlalchemy import create_engine
 
 
+# 通过各场地编号规则，识别机器编号属于哪个场地，可能属于长期需维护的函数
+def area_identify(val):
+    if val.startswith('tq'):
+        return 'M'
+    if len(val) == 5:
+        return 'D'
+    elif len(val) == 6 or val.startswith('rig'):
+        return 'H'
+
+
 # 函数集在某时间范围内豁免执行
 def stop_period_func(df, functions=[]):
     """
@@ -35,7 +45,7 @@ def low_hr_report(df):
     # 发送内容
     msg = ''
 
-    if len(df) == 0:
+    if df.empty:
         msg = '暂时无低算力机器。'
     else:
         accounts = df['账号'].unique()
@@ -65,18 +75,21 @@ def hourly_offline_report(df):
     # 发送内容
     msg = ''
 
-    if len(df) == 0:
+    if df.empty:
         msg = '暂时无离线机器。'
     else:
-        accounts = df['账号'].unique()
-        for account in accounts:
-            container = '以下编号离线,请及时查看：\n'
-            serials = list(df[df['账号'] == account]['机器编号'])
-            if len(serials) > 10:
-                container += account + '\t' + str(serials[:5]) + '等大量离线\n'
-            else:
-                container += account + '\t' + str(serials) + '\n'
-            msg += container + '\n'
+        df['场地'] = df['机器编号'].map(lambda x: area_identify(x))
+        groups = df.groupby(['场地', '账号'])
+        area_name = ''
+        for group_name, group_df in groups:
+            if area_name != group_name[0]:
+                msg += group_name[0] + '\n'
+                area_name = group_name[0]
+            serials = list(group_df['机器编号'])
+            if len(serials)>5:
+                serials = str(list(group_df['机器编号'])[:5])+'等大量离线'
+            msg += str(group_df['账号'].values[0]) + '\t' + str(serials) + '\n'
+
     # 信息发送
     offline_dingding.send_text(msg=msg)
 

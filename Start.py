@@ -26,4 +26,4 @@ if __name__ == '__main__':
     stop_period_func(df, [hourly_offline_report])
 
     # 24小时都在执行的函数
-    day_offline_record(df)
+    # day_offline_record(df)

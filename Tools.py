@@ -34,7 +34,7 @@ def send_email(subject=None, contents=None, emails_receive=[], attachments=None)
 # 鱼池访问api限制，15次/分钟，设置延时4.5秒一次请求，每分钟13次请求。
 def get_response(account):
     url = 'https://api.f2pool.com/eth/{}'.format(account)
-    res_raw = requests.get(url, timeout=15)
+    res_raw = requests.get(url, timeout=30)
     # 如果状态码不为200，邮件告警并退出
     if res_raw.status_code != 200:
         error_content = '错误代码:' + str(res_raw.status_code)
