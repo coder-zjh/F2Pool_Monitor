@@ -1,16 +1,2 @@
 account-record:
-  sherry88888: { 'M': 5,'H': 17 }
-  zhaojian8: { 'M': 15 }
-  eth88eth: { 'D': 517 }
-  eth888eth: { 'D': 250,'H': 250 }
-  eth133: { 'M': 100,'H': 33 }
-  ethy100: { 'H': 100 }
-  eth30hx23: { 'M': 23 }
-  eth30hx27: { 'M': 27 }
-  zhoufang: { 'D': 10 }
-  yanjiazhong2: { 'D': 30 }
-  sikaiyong1: { 'D': 30 }
-  ethchen88: { 'H': 0 }
-  zhouqifang: { 'M': 30,'D': 20 }
-  ethvbtc: { 'D': 126 }
-  ethwu9: { 'M': 30,'D': 20 }
+  账户: {'矿场编号': 数量}
