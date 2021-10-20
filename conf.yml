@@ -12,7 +12,6 @@ mysql_conn:
   user: root
   password: zjh_123
 
-
 # 程序停止执行的起止时间(24小时制)
 stop_running_period:
   # begin:1 end:8 ==》指1点到8点不执行

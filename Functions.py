@@ -9,7 +9,7 @@ from datetime import datetime
 from sqlalchemy import create_engine
 
 
-# 通过各场地编号规则，识别机器编号属于哪个场地，可能属于长期需维护的函数
+# 通过各场地编号规则，识别机器编号属于哪个场地，属于需长期维护的函数
 def area_identify(val):
     if val.startswith('tq'):
         return 'M'
@@ -19,13 +19,16 @@ def area_identify(val):
         return 'H'
 
 
+# 根据访问完的df，拆分各账户在各场地的机器数，返回这个结果df
+def realtime_area_count(df):
+    # 获得的df是['账号', '机器编号', '过去15min平均算力', '过去1h平均算力', '实时算力']
+    df['场地'] = df['机器编号'].map(lambda x: area_identify(x))
+    d = pd.DataFrame({'count': df.groupby(['账号', '场地']).size()}).reset_index()
+    return d
+
+
 # 函数集在某时间范围内豁免执行
 def stop_period_func(df, functions=[]):
-    """
-    :param df:
-    :param functions: 需要对df执行的函数列表
-    :return:
-    """
     stop_running_period = parse_yaml('conf.yml', 'stop_running_period')
     begin, end = stop_running_period['begin'], stop_running_period['end']
     if datetime.now().hour not in range(begin, end):
@@ -69,8 +72,9 @@ def hourly_offline_report(df):
     webhook, secret = parse_yaml('conf.yml', 'hourly_offline_report').values()
     offline_dingding = DingtalkChatbot(webhook=webhook, secret=secret)
 
-    # 规则:编号合理(非eth开头的) 且 实时算力等于0
-    df = df[(df['实时算力'] == 0) & (~df['机器编号'].str.contains('eth'))][['账号', '机器编号', '实时算力']]
+    # 获取每小时每个场地内离线的账户
+    # 规则:实时算力等于0
+    df = df[(df['实时算力'] == 0)][['账号', '机器编号', '实时算力']]
 
     # 发送内容
     msg = ''
@@ -78,8 +82,8 @@ def hourly_offline_report(df):
     if df.empty:
         msg = '暂时无离线机器。'
     else:
-        df['场地'] = df['机器编号'].map(lambda x: area_identify(x))
-        groups = df.groupby(['场地', '账号'])
+        df['机器所属场地'] = df['机器编号'].map(lambda x: area_identify(x))
+        groups = df.groupby(['机器所属场地', '账号'])
         area_name = ''
         for group_name, group_df in groups:
             if area_name != group_name[0]:
@@ -94,15 +98,15 @@ def hourly_offline_report(df):
     offline_dingding.send_text(msg=msg)
 
 
-# 24小时每小时离线机器记录
-def day_offline_record(df):
+# 每小时离线机器编号写表
+def hourly_offline_to_db(df):
     # 获取记录日期
     record_date = datetime.now().strftime('%Y%m%d')
     # 获取记录时分秒
     record_time = datetime.now().strftime('%H:%M:%S')
 
     # df处理：获取实时算力为0的机器
-    df = df[(df['实时算力'] == 0) & (~df['机器编号'].str.contains('wc|eth'))][['账号', '机器编号']]
+    df = df[(df['实时算力'] == 0)][['账号', '机器编号']]
     df.columns = ['account', 'serial']
     df['record_date'] = record_date
     df['record_time'] = record_time
@@ -110,9 +114,31 @@ def day_offline_record(df):
     # 数据库连接配置
     conn_dict = parse_yaml('conf.yml', 'mysql_conn')
     user, password, host, port = conn_dict['user'], conn_dict['password'], conn_dict['host'], conn_dict['port']
-    db_name = 'F2Pool'
-    tb_name = 'hourly_offline_record'
-    engine = create_engine('mysql+pymysql://{}:{}@{}:{}/{}'.format(user, password, host, port, db_name))
+
+    engine = create_engine('mysql+pymysql://{}:{}@{}:{}/{}'.format(user, password, host, port, 'F2Pool'))
 
     # 发送数据到mysql
-    df.to_sql(tb_name, engine, index=False, if_exists='append')
+    df.to_sql('hourly_offline_serial_record', engine, index=False, if_exists='append')
+
+# 每小时缺失记录
+def miss_record():
+    # 获取账户在每个场地中应有的机器数：返回[账户,场地,场地机器数]
+    should_get_count = get_account_area_account()
+    # 实际访问api后获得的每个账户在每个场地的机器数
+    real_get_count = account_area_count(df)
+
+    df = pd.merge(register_count, realtime_count, how='inner', on=['账号', '场地'])
+    df['登记机器数'] = df['登记机器数'].map(lambda x: int(float(x)))
+    df['diff'] = df['登记机器数']-df['count']
+    df = df[df['diff']!=0]
+
+    # 获取记录日期
+    record_date = datetime.now().strftime('%Y%m%d')
+    df['record_date'] = record_date
+
+    # 数据库连接配置
+    conn_dict = parse_yaml('conf.yml', 'mysql_conn')
+    user, password, host, port = conn_dict['user'], conn_dict['password'], conn_dict['host'], conn_dict['port']
+    engine = create_engine('mysql+pymysql://{}:{}@{}:{}/{}'.format(user, password, host, port, 'F2Pool'))
+    # 发送数据到mysql
+    df.to_sql('hourly_miss_serial_record', engine, index=False, if_exists='append')

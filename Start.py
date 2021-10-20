@@ -20,10 +20,11 @@ if __name__ == '__main__':
             continue
         else:
             df = df.append(df_res)
-        time.sleep(4.5)
+        # 鱼池访问api限制，15次/分钟，设置每5秒一次请求，每分钟12次请求，即获得12个账户信息。
+        time.sleep(5)
 
-    # 某段时间不执行的函数集
+    # 某段时间不执行的函数
     stop_period_func(df, [hourly_offline_report])
 
     # 24小时都在执行的函数
-    # day_offline_record(df)
+    # hourly_offline_to_db(df)
