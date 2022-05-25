@@ -44,26 +44,4 @@ def send_email(subject=None, contents=None, emails_receive=[], attachments=None)
     yagmail_server.close()
 
 
-# api返回信息处理:str=>dataframe
-def get_response(account):
-    url = 'https://api.f2pool.com/eth/{}'.format(account)
-    res_raw = requests.get(url, timeout=30)
-    # 如果状态码不为200，邮件告警并退出
-    if res_raw.status_code != 200:
-        error_content = '错误代码:' + str(res_raw.status_code)
-        send_email('鱼池错误', error_content, ['541946578@qq.com'])
-        return res_raw.status_code
-
-    # 如果访问与接收没问题，开始取workers信息，即各编号矿机即时信息
-    workers = json.loads(res_raw.text)['workers']
-    if len(workers) == 0:
-        return pd.DataFrame()
-    else:
-        df = pd.DataFrame(workers)[[0, 1, 2, 8]]
-        df['账号'] = account
-        df = df[['账号', 0, 1, 2, 8]]
-        df.columns = ['账号', '机器编号', '过去15min平均算力', '过去1h平均算力', '实时算力']
-        # 算力值保留2位小数
-        df[['过去15min平均算力', '过去1h平均算力', '实时算力']] = round(df[['过去15min平均算力', '过去1h平均算力', '实时算力']] / 1000000, 2)
-        # 返回 df=['账号', '机器编号', '过去15min平均算力', '过去1h平均算力', '实时算力']
-        return df
+# 返回信息处理，代码已隐藏
